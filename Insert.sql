@@ -1,0 +1,81 @@
+-- Insert Random Data
+-- Customers
+INSERT INTO customers (customer_name, email, city, state, country, registration_date, customer_segment)
+SELECT 
+    'Customer_' || seq,
+    'customer' || seq || '@example.com',
+    CASE (seq % 5) 
+        WHEN 0 THEN 'Delhi'
+        WHEN 1 THEN 'Mumbai'
+        WHEN 2 THEN 'Bangalore'
+        WHEN 3 THEN 'Pune'
+        ELSE 'Hyderabad'
+    END,
+    CASE (seq % 5)
+        WHEN 0 THEN 'Delhi'
+        WHEN 1 THEN 'Maharashtra'
+        WHEN 2 THEN 'Karnataka'
+        WHEN 3 THEN 'Maharashtra'
+        ELSE 'Telangana'
+    END,
+    'India',
+    CURRENT_DATE - (RANDOM() * 730)::INT,
+    CASE (seq % 3)
+        WHEN 0 THEN 'Premium'
+        WHEN 1 THEN 'Regular'
+        ELSE 'Budget'
+    END
+FROM GENERATE_SERIES(1, 500) AS seq;
+
+-- Products
+INSERT INTO products (product_name, category, sub_category, price, cost, supplier)
+SELECT 
+    category || '_Product_' || seq,
+    category,
+    sub_cat,
+    (1000 + RANDOM() * 50000)::NUMERIC(10, 2),
+    (500 + RANDOM() * 25000)::NUMERIC(10, 2),
+    'Supplier_' || (seq % 10)
+FROM (
+    SELECT 
+        seq,
+        CASE (seq % 5)
+            WHEN 0 THEN 'Electronics'
+            WHEN 1 THEN 'Furniture'
+            WHEN 2 THEN 'Accessories'
+            WHEN 3 THEN 'Stationery'
+            ELSE 'Appliances'
+        END AS category,
+        CASE (seq % 5)
+            WHEN 0 THEN 'Computers'
+            WHEN 1 THEN 'Seating'
+            WHEN 2 THEN 'Cables'
+            WHEN 3 THEN 'Notebooks'
+            ELSE 'Kitchen'
+        END AS sub_cat
+    FROM GENERATE_SERIES(1, 50) AS seq
+) subq;
+
+-- Orders
+INSERT INTO orders (customer_id, product_id, order_date, quantity, unit_price, total_amount, discount_percent, payment_method, order_status)
+SELECT 
+    (RANDOM() * 499)::INT + 1,
+    (RANDOM() * 49)::INT + 1,
+    CURRENT_DATE - (RANDOM() * 365)::INT,
+    (RANDOM() * 10)::INT + 1,
+    (1000 + RANDOM() * 50000)::NUMERIC(10, 2),
+    ((1000 + RANDOM() * 50000) * ((RANDOM() * 10)::INT + 1))::NUMERIC(12, 2),
+    CASE WHEN RANDOM() > 0.7 THEN (RANDOM() * 20)::NUMERIC(5, 2) ELSE 0 END,
+    CASE (RANDOM() * 3)::INT
+        WHEN 0 THEN 'Credit Card'
+        WHEN 1 THEN 'Debit Card'
+        WHEN 2 THEN 'Online Banking'
+        ELSE 'Cash'
+    END,
+    CASE (RANDOM() * 4)::INT
+        WHEN 0 THEN 'Completed'
+        WHEN 1 THEN 'Pending'
+        WHEN 2 THEN 'Shipped'
+        ELSE 'Delivered'
+    END
+FROM GENERATE_SERIES(1, 5000);
